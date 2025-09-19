@@ -55,6 +55,9 @@ df_all = pd.concat(dfs, ignore_index=True)
 
 
 
+df_all = df_all[df_all.Site.isin(['Yu','Sa','Sca','Er','Lq'])]
+site_order = ['Yu','Sa','Sca','Er','Lq']
+
 # FacetGrid ordered by altitude
 g = sns.FacetGrid(
     df_all,
@@ -76,6 +79,30 @@ plt.subplots_adjust(top=0.9, bottom=0.15, left=0.05, right=0.95, hspace=0.3, wsp
 #g.fig.suptitle("Comparison of rRMSE vs SZA (ordered by altitude)", fontsize=16)
 
 plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
