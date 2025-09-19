@@ -31,8 +31,8 @@ RMSE_values = [
 # --- Convertir a DataFrame ---
 def create_metric_df(values, metric_name):
     data = []
-    for modelo, row in zip(modelos, values):
-        for sitio, val in zip(sitios, row):
+    for modelo, row in zip(models, values):
+        for sitio, val in zip(sites, row):
             data.append({'Modelo': modelo, 'Sitio': sitio, metric_name: val})
     return pd.DataFrame(data)
 

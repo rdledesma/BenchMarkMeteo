@@ -19,6 +19,10 @@ data = (data.set_index('datetime')
       .reset_index())
 
 
+data = data.resample(on='datetime', rule='60 min').mean().reset_index()
+
+
+
 
 plt.figure()
 plt.plot(data.datetime, data.ghi, label="Meas")
@@ -123,28 +127,32 @@ Metrics.rmbe(X.ghi, X.merra)
 
 
 
+# Definir los límites de los bins de SZA
+bins = np.arange(0, 90, 10)  # 0, 10, 20, ..., 80
+labels = [f"{bins[i]}-{bins[i+1]}" for i in range(len(bins)-1)]
 
-# # Definir los límites de los bins de SZA
-# bins = np.arange(0, 90, 10)  # 0, 10, 20, ..., 80
-# labels = [f"{bins[i]}-{bins[i+1]}" for i in range(len(bins)-1)]
+# Crear una columna con el bin correspondiente
+X['SZA_bin'] = pd.cut(X['SZA'], bins=bins, labels=labels, right=False)
 
-# # Crear una columna con el bin correspondiente
-# X['SZA_bin'] = pd.cut(X['SZA'], bins=bins, labels=labels, right=False)
+# Calcular el rrmsd por bin para cams y lsasaf
+rrmsd_cams = X.groupby('SZA_bin').apply(lambda g: Metrics.rrmsd(g.ghi, g.cams))
+rrmsd_lsasaf = X.groupby('SZA_bin').apply(lambda g: Metrics.rrmsd(g.ghi, g.lsasaf))
+rrmsd_era = X.groupby('SZA_bin').apply(lambda g: Metrics.rrmsd(g.ghi, g.era))
+rrmsd_merra = X.groupby('SZA_bin').apply(lambda g: Metrics.rrmsd(g.ghi, g.merra))
+# Combinar resultados en un dataframe
+rrmsd_df = pd.DataFrame({
+    'RRMSD_cams': rrmsd_cams,
+    'RRMSD_lsasaf': rrmsd_lsasaf,
+    'RRMSD_era': rrmsd_era,
+    'RRMSD_merra': rrmsd_merra,
 
-# # Calcular el rrmsd por bin para cams y lsasaf
-# rrmsd_cams = X.groupby('SZA_bin').apply(lambda g: Metrics.rrmsd(g.ghi, g.cams))
-# rrmsd_lsasaf = X.groupby('SZA_bin').apply(lambda g: Metrics.rrmsd(g.ghi, g.lsasaf))
+})
 
-# # Combinar resultados en un dataframe
-# rrmsd_df = pd.DataFrame({
-#     'RRMSD_cams': rrmsd_cams,
-#     'RRMSD_lsasaf': rrmsd_lsasaf
-# })
+plt.figure()
+rrmsd_df.plot(kind='bar')
+plt.show(block=False)
 
-# plt.figure()
-# rrmsd_df.plot(kind='bar')
-# plt.show(block=False)
-
+rrmsd_df.to_csv(f'{site.cod}_60_SZA.csv')
 
 
 

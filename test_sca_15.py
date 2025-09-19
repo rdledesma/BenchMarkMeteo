@@ -70,8 +70,8 @@ X.to_csv('sca15.csv', index=False)
 
 
 
-# Metrics.rmbe(X.ghi, X.cams)
-# Metrics.rmbe(X.ghi, X.lsasaf)
+Metrics.rmbe(X.ghi, X.cams)
+Metrics.rmbe(X.ghi, X.lsasaf)
 
 Metrics.rmae(X.ghi, X.cams)
 Metrics.rmae(X.ghi, X.lsasaf)
@@ -86,6 +86,67 @@ Metrics.rrmsd(X.ghi, X.lsasaf)
 
 X['kt'] = data.ghi / data.TOA 
 
+
+
+
+X['year'] = X['datetime'].dt.year
+
+# Estación (austral, asumiendo hemisferio sur)
+def get_season(date):
+    m = date.month
+    d = date.day
+    if (m == 12 and d >= 21) or (m <= 3 and (m < 3 or (m == 3 and d < 21))):
+        return "Summer"
+    elif (m == 3 and d >= 21) or (m <= 6 and (m < 6 or (m == 6 and d < 21))):
+        return "Autumn"
+    elif (m == 6 and d >= 21) or (m <= 9 and (m < 9 or (m == 9 and d < 21))):
+        return "Winter"
+    else:
+        return "Spring"
+
+X['season'] = X['datetime'].apply(get_season)
+
+
+# Por año
+yearly = X.groupby('year').apply(
+    lambda df: pd.Series({
+        'cams': Metrics.rrmsd(df.ghi, df.cams),
+        'lsasaf': Metrics.rrmsd(df.ghi, df.lsasaf)
+        # si agregás ERA5 y MERRA-2: 'era5': rrmsd(df.ghi, df.era5), etc.
+    })
+)
+
+
+# Por estación
+seasonal = X.groupby('season').apply(
+    lambda df: pd.Series({
+        'cams': Metrics.rrmsd(df.ghi, df.cams),
+        'lsasaf': Metrics.rrmsd(df.ghi, df.lsasaf)
+    })
+)
+
+
+
+# Año por año
+yearly.plot(kind='bar', figsize=(10,5))
+plt.ylabel("rRMSE (%)")
+plt.title(f"Yearly rRMSE comparison - {site.cod}")
+plt.show()
+
+
+yearly.to_csv(f'{site.cod}_15_year.csv')
+
+
+# Por estación
+seasonal.loc[['Summer','Autumn','Winter','Spring']].plot(kind='bar', figsize=(8,5))
+plt.ylabel("rRMSE (%)")
+plt.title(f"Seasonal rRMSE comparison - {site.cod}")
+plt.show()
+
+
+seasonal.to_csv(f'{site.cod}_15_seaon.csv')
+
+
 #X = X[X['kt']>0.1]
 
 Metrics.rrmsd(X.ghi, X.cams)
@@ -98,6 +159,9 @@ plt.plot(X.datetime, X.cams, label="CAMS")
 plt.plot(X.datetime, X.lsasaf, label="LSA-SAF")
 plt.legend()
 plt.show()
+
+
+
 
 
 
@@ -122,6 +186,8 @@ rrmsd_df = pd.DataFrame({
 plt.figure()
 rrmsd_df.plot(kind='bar')
 plt.show(block=False)
+
+rrmsd_df.to_csv(f'{site.cod}_15_SZA.csv')
 
 
 
