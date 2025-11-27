@@ -148,13 +148,90 @@ plt.show()
 
 
 
-for metric_name, df_metric in metrics.items():
-    plt.figure(figsize=(12, 4))
-    heatmap_data = df_metric.pivot(index="Model", columns="Site", values=metric_name)
-    sns.heatmap(heatmap_data, annot=True, fmt=".1f", cmap="YlOrRd",
-                cbar_kws={'label': metric_name}, annot_kws={"size":12})
-    plt.title(f"{metric_name} by model and site")
-    plt.xlabel("Site")
-    plt.ylabel("Model (15 minutes)")
-    plt.tight_layout()
-    plt.show()
+
+# Asumiendo que 'metrics' es un diccionario con los nombres de las métricas y sus respectivos DataFrames
+fig, axes = plt.subplots(3, 1, figsize=(14, 12), sharex=True)
+
+for ax, (metric_name, df_metric) in zip(axes, metrics.items()):
+    sns.barplot(data=df_metric, x="Site", y=metric_name, hue="Model", ax=ax)
+    ax.set_ylabel(metric_name, fontsize=18)
+    ax.set_xlabel("")
+    
+    # Establecer los límites de los ejes verticales para rMAE y rRMSE
+    if metric_name in ['rMAE %', 'rRMSE %']:
+        ax.set_ylim(0, 50)
+
+axes[-1].set_xlabel("Site", fontsize=16)
+plt.tight_layout()
+plt.show()
+
+
+
+
+# for metric_name, df_metric in metrics.items():
+#     plt.figure(figsize=(12, 4))
+#     heatmap_data = df_metric.pivot(index="Model", columns="Site", values=metric_name)
+#     sns.heatmap(heatmap_data, annot=True, fmt=".1f", cmap="YlOrRd",
+#                 cbar_kws={'label': metric_name}, annot_kws={"size":12})
+#     plt.title(f"{metric_name} by model and site")
+#     plt.xlabel("Site")
+#     plt.ylabel("Model (15 minutes)")
+#     plt.tight_layout()
+#     plt.show()
+
+
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np
+
+fig, axes = plt.subplots(3, 1, figsize=(14, 12), sharex=True)
+
+handles, labels = None, None
+
+for i, (ax, (metric_name, df_metric)) in enumerate(zip(axes, metrics.items())):
+    if i == 0:
+        sns.barplot(
+            data=df_metric,
+            x="Site",
+            y=metric_name,
+            hue="Model",
+            ax=ax,
+            palette="Greys"
+        )
+        handles, labels = ax.get_legend_handles_labels()
+        ax.legend_.remove()   # quitar leyenda local
+    else:
+        sns.barplot(
+            data=df_metric,
+            x="Site",
+            y=metric_name,
+            hue="Model",
+            ax=ax,
+            palette="Greys",
+            legend=False
+        )
+
+    ax.set_ylabel(metric_name, fontsize=18)
+    ax.set_xlabel("")
+
+    # ✅ mismos límites y ticks visibles para rMAE y rRMSE
+    if metric_name in ['rMAE %', 'rRMSE %']:
+        ax.set_ylim(0, 50)
+        ax.set_yticks(np.arange(0, 51, 10),)
+
+# ✅ Leyenda única horizontal compartida
+fig.legend(
+    handles,
+    labels,
+    loc="upper center",
+    ncol=len(labels),
+    fontsize=14,
+    frameon=False
+)
+
+axes[-1].set_xlabel("Site", fontsize=16)
+
+# ✅ dejar espacio arriba para la leyenda
+plt.tight_layout(rect=[0, 0, 1, 0.93])
+plt.show()

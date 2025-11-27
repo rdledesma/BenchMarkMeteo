@@ -86,9 +86,21 @@ lsasaf = (lsasaf.set_index('datetime')
 lsasaf = lsasaf.resample(on='datetime', rule='60 min').mean().reset_index()
 
 
-era =  pd.read_csv(f'/home/inenco/Documentos/ERA/{site.cod}_era.csv')
+era =  pd.read_csv(f'/home/inenco/Documentos/ERA/{site.cod}_era_2.csv')
 era['datetime'] = pd.to_datetime(era.datetime)
+era = (era.set_index('datetime')
+      .reindex(pd.date_range(
+    start="2017/01/01 00:00", end="2018/12/31 23:59", freq="60min"))
+      .rename_axis(['datetime'])
+      .reset_index())
 
+
+
+
+plt.figure()
+plt.plot(era.datetime, era.GHI)
+plt.plot(data.datetime, data.ghi)
+plt.show()
 
 merra =  pd.read_csv(f'/home/inenco/Documentos/MERRA/{site.cod}.csv')
 merra['datetime'] = pd.to_datetime(merra.datetime)
@@ -120,6 +132,11 @@ data['merra'] = merra.GHI.values
 
 
 
+plt.figure()
+plt.plot(data.ghi)
+plt.plot(data.era)
+plt.show(block=False)
+
 
 
 X = data.dropna()
@@ -143,6 +160,7 @@ Metrics.rmae(X.ghi, X.cams)
 Metrics.rmae(X.ghi, X.lsasaf)
 Metrics.rmae(X.ghi, X.era)
 Metrics.rmae(X.ghi, X.merra)
+
 
 
 Metrics.rrmsd(X.ghi, X.cams)

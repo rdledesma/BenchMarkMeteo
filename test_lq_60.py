@@ -99,6 +99,11 @@ X.to_csv('lq60.csv', index=False)
 
 
 
+
+
+
+
+
 Metrics.rmbe(X.ghi, X.cams)
 Metrics.rmbe(X.ghi, X.lsasaf)
 Metrics.rmbe(X.ghi, X.era)
