@@ -220,6 +220,10 @@ for i, (ax, (metric_name, df_metric)) in enumerate(zip(axes, metrics.items())):
         ax.set_ylim(0, 50)
         ax.set_yticks(np.arange(0, 51, 10),)
 
+    if metric_name in ['rMBE %']:
+        ax.set_ylim(-25, 51)
+        ax.set_yticks(np.arange(-25,51,10))
+
 # ✅ Leyenda única horizontal compartida
 fig.legend(
     handles,
@@ -234,4 +238,8 @@ axes[-1].set_xlabel("Site", fontsize=16)
 
 # ✅ dejar espacio arriba para la leyenda
 plt.tight_layout(rect=[0, 0, 1, 0.93])
+# Save 
+path = "./15Metrics.png"
+plt.savefig(path, bbox_inches='tight', dpi=200)
 plt.show()
+

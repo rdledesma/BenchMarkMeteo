@@ -10,7 +10,7 @@ ax.set_ylim(0, 14)
 ax.axis('off')
 
 def draw_box(x, y, w, h, text):
-    box = FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0.3", linewidth=1)
+    box = FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0.3", linewidth=1, facecolor='white', edgecolor='black')
     ax.add_patch(box)
     ax.text(x+w/2, y+h/2, text, ha='center', va='center', wrap=True, fontsize=14)
     return box
@@ -56,6 +56,6 @@ connect(b6, b7)
 #ax.set_title("Workflow: QC, Aggregation, Model–Station Matching, and Evaluation", fontsize=14, pad=20)
 
 # Save
-path = "/mnt/data/workflow_black_arrows.png"
+path = "./workflow_black_arrows.png"
 plt.savefig(path, bbox_inches='tight', dpi=200)
 plt.show()
